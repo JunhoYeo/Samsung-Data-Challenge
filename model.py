@@ -1,8 +1,11 @@
 # 교통사고 주/야, 요일 -> 예상 속도
 # 6시 ~ 18시 : 주 / 1 ~ 5시, 19시 ~ 24시
 import tensorflow as tf
+from keras.models import *
+from keras.layers import *
+from keras.callbacks import *
 import numpy as np
-from sklearn.preprocessing import LabelEncoder,OneHotEncoder
+import pandas as pd
 import csv, random
 
 class Dataset:
@@ -79,5 +82,43 @@ if __name__ == '__main__':
     print("Training set: {}".format(train_data.shape))
     print("Testing set:  {}".format(test_data.shape))
 
+    df = pd.DataFrame(train_data, columns=['weekday', 'day/night'])
+    print(df.head())
+    print(train_labels[0:5])
+
+    mean = train_data.mean(axis=0)
+    std = train_data.std(axis=0)
+    train_data = (train_data - mean) / std
+    test_data = (test_data - mean) / std
+    print(train_data[0])
+
+    def build_model():
+        model = Sequential([
+            Dense(64, activation=tf.nn.relu, 
+                    input_shape=(train_data.shape[1],)),
+            Dense(64, activation=tf.nn.relu),
+            Dense(1)
+        ])
+        optimizer = tf.train.RMSPropOptimizer(0.001)
+        model.compile(loss='mse', optimizer=optimizer, metrics=['mae'])
+        return model
     
-    
+    model = build_model()
+    model.summary()
+
+    class PrintDot(Callback):
+        def on_epoch_end(self,epoch,logs):
+            if epoch % 10 == 0: print('')
+            print('.', end='')
+
+    EPOCHS = 50
+    early_stop = EarlyStopping(monitor='val_loss', patience=20)
+    history = model.fit(train_data, train_labels, epochs=EPOCHS,
+                        validation_split=0.2, verbose=0,
+                        callbacks=[early_stop, PrintDot()])
+    [loss, mae] = model.evaluate(test_data, test_labels, verbose=0)
+    print(f'Testing set Mean Abs Error: {mae:7.2f}')
+
+    print((train_data * std) + mean)
+    test_predictions = model.predict(test_data).flatten()
+    print(test_predictions)
