@@ -108,17 +108,33 @@ if __name__ == '__main__':
 
     class PrintDot(Callback):
         def on_epoch_end(self,epoch,logs):
-            if epoch % 10 == 0: print('')
+            if epoch % 1 == 0: print('')
             print('.', end='')
 
-    EPOCHS = 50
+    # checkpoint_path = 'cp-{epoch:04d}.ckpt'
+    # checkpoint_dir = os.path.dirname(checkpoint_path)
+
+    # cp_callback = ModelCheckpoint(
+    #     checkpoint_path, verbose=1, save_weights_only=True,
+    #     period=10)
+        
+    EPOCHS = 500
     early_stop = EarlyStopping(monitor='val_loss', patience=20)
-    history = model.fit(train_data, train_labels, epochs=EPOCHS,
-                        validation_split=0.2, verbose=0,
-                        callbacks=[early_stop, PrintDot()])
+
+    # model.fit(train_data, train_labels, epochs=EPOCHS,
+    #                     validation_split=0.2, verbose=0,
+    #                     callbacks=[cp_callback, early_stop, PrintDot()])
+    model.load_weights('cp-0010.ckpt')
+    model.load_weights('cp-0020.ckpt')
+
     [loss, mae] = model.evaluate(test_data, test_labels, verbose=0)
     print(f'Testing set Mean Abs Error: {mae:7.2f}')
 
-    print((train_data * std) + mean)
+    original = (test_data * std) + mean
+    original = [[dataset.week_names[int(i[0])], bool(int(i[1]))] for i in original]
     test_predictions = model.predict(test_data).flatten()
-    print(test_predictions)
+    # print(test_predictions)
+
+    for i in range(5):
+        print(original[i])
+        print(test_predictions[i])
