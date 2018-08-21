@@ -20,7 +20,7 @@ class Dataset:
 
     def get_dataset(self, year, month): # 서울시 차량 통행 속도 데이터 
         # ['일자', '요일', '도로명', '링크아이디', '시점명', '종점명', '거리', '방향', '01시', '02시', '03시', '04시','05시', '06시', '07시', '08시', '09시', '10시', '11시', '12시', '13시', '14시', '15시', '16시', '17시', '18시', '19시', '20시', '21시', '22시', '23시', '24시']
-        filepath = f'dataset_kor/보조데이터/01.서울시 차량 통행 속도/{str(year)}년 {str(month)}월 통행속도.csv'
+        filepath = f'../dataset_kor/보조데이터/01.서울시 차량 통행 속도/{str(year)}년 {str(month)}월 통행속도.csv'
         with open(filepath, 'r', encoding='cp949') as f:
             reader = csv.DictReader(f)
             for line in reader:
@@ -136,5 +136,4 @@ if __name__ == '__main__':
     # print(test_predictions)
 
     for i in range(5):
-        print(original[i])
-        print(test_predictions[i])
+        print(str(original[i]) + ' ---> ' + str(test_predictions[i]))
