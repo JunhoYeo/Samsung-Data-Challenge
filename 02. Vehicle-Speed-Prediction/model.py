@@ -72,7 +72,7 @@ class Dataset:
 
 if __name__ == '__main__':
     dataset = Dataset()
-    dataset.get_dataset(2014, 1)
+    dataset.get_all()
     dataset.generate_dataset()
 
     (train_data, train_labels), (test_data, test_labels) = dataset.load_data()
